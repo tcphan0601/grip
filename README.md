@@ -20,42 +20,39 @@ Video tutorials for some of the capabilities and usage patterns can be found on 
 
 ------
 
+## **This is a modified fork** of the original [GRIP repository](https://github.com/enze-chen/grip). This version introduces support for **Singularity/Apptainer** containers and modifies the command-line interface to better support high-performance computing (HPC) workflows.
 
-## Dependencies
-- [Python](https://www.python.org/) (3.11.5+)
-- [PyYAML](https://pyyaml.org/) (6.0.1)
-- [NumPy](https://numpy.org/) (1.24.4)
-- [ASE](https://wiki.fysik.dtu.dk/ase/) (3.22.1)
-- [LAMMPS](https://www.lammps.org) (**serial** binary only)
-- [MPI for Python](https://mpi4py.readthedocs.io/en/stable) (3.1.4, for PBS resource managers only)
+## Key Modifications in this Fork
+- **Singularity Support**: Added `grip.def` to build a fully portable environment containing Python 3.11.5, LAMMPS (29Aug2024), and all necessary dependencies.
+- **CLI Enhancement**: Updated `main.py` to require an explicit parameters file path via the `-i/--input` flag.
 
-_Optional_
-- [pandas](https://pandas.pydata.org/) (1.5.3)
-- [Matplotlib](https://matplotlib.org/stable/index.html) (3.10.1)
+## Dependencies (Included in Container)
+The following dependencies are automatically handled if using the provided Singularity image:
+- Python (3.11.5)
+- PyYAML (6.0.1)
+- NumPy (1.24.4)
+- ASE (3.22.1)
+- LAMMPS (29Aug2024 serial build with MEAM, MOST, and MANYBODY packages)
+- MPI for Python (3.1.4)
+- pandas (1.5.3)
+- Matplotlib (3.10.1)
 
 
-## Usage
+## Usage with Singularity (Recommended)
 
-GRIP functions as a collection of scripts, there's no binary that you need to install or compile.
-Assuming the above Python libraries are installed, clone the repo and make the 
-appropriate modifications in `params.yaml` (see file for detailed comments), 
-including the **path** to the LAMMPS binary on your system.
-You will also need the **path** to the interatomic potential file, 
-as the code reads it from disk to avoid making unnecessary copies.
+To ensure a reproducible environment on HPC clusters, use the included definition file grip.def to build a singularity image file.
 
-If you wish, you can supply your own slabs for the bicrystal configuration as
-POSCAR_LOWER and POSCAR_UPPER (in the [POSCAR](https://www.vasp.at/wiki/index.php/POSCAR)
-file format).
-Then call:
-```python
-python main.py
+## 1. Build the Image
+From the root of this repository, run:
+```bash
+sudo singularity build grip.sif grip.def
 ```
-If you don't have LAMMPS or just want to test the script, you can run it with the `-d` flag.
-In fact, it is recommended you run it in debug mode first to ensure the proper configuration.
 
-See the `.examples` folder for a Slurm submission script for parallel execution (preferred).
-Note that GRIP can use multiple cores, but only those on a single node (for now).
-
+## 2. Run the image
+You must bind your host directories (where your potentials and input files live) so the container can access them. Example of submission scripts for SLURM is included in the example folder
+```bash
+singularity run --bind /path/to/binding/folder/:/path/to/binding/folder/ grip.sif -i /path/to/your/params.yaml
+```
 
 ## File structure
 - `main.py`: Script to launch everything.

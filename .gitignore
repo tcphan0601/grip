@@ -10,3 +10,4 @@ sub_*.sh
 POSCAR_*
 my_params.yaml
 zjob.*
+*.sif

@@ -1,53 +1,52 @@
-#!/usr/bin/env python3
-import os
-from argparse import ArgumentParser
-import numpy as np
 
-from core.bicrystal import Bicrystal
+#!/usr/bin/env python3                                                              
+import os                                                                           
+import sys
+from argparse import ArgumentParser            
+import numpy as np
+                                                                                    
+from core.bicrystal import Bicrystal                            
 from core.simulation import Simulation
 from utils.utils import make_dirs, get_inputs, make_crystals, compute_weights, \
                   get_xy_translation, get_xy_replications
-
+                                                                                    
 ##############################################################################
-
-def main(infile: str, debug: bool) -> None:
-    """
+                                                                                    
+def main(infile: str, debug: bool) -> None:     
+    """                                       
     Performs grand canonical optimization of GB structures.
-
-    Args:
+                                                                                    
+    Args:                             
         infile (str): YAML file of simulation parameters.
-        Defaults to params.yaml.
-
-        debug (bool): Flag for running in DEBUG mode.
-        Defaults to False.
-
-    Returns:
+                                                                                    
+        debug (bool): Flag for running in DEBUG mode.                
+                                                                                    
+    Returns:                               
         None.
-    """
-
+    """                                         
+                                                                                    
     # Read in parameters from YAML file.
-    struct, algo = get_inputs(infile, debug)
+    struct, algo = get_inputs(infile, debug)                                      
 
     # Create a Simulation object to orchestrate the simulation
-    sim = Simulation(struct, algo, debug)
-    if debug: print(f"Starting GRIP calculations from {sim.root}")
-    if debug: print(f"This process is running in {sim.cfold}")
-    # Note: The logging package might make debugging print statements easier.
-
+    sim = Simulation(struct, algo, debug)                                               
+    if debug: print(f"Starting GRIP calculations from {sim.root}")        
+    if debug: print(f"This process is running in {sim.cfold}")                    
+                                                                                                                                                                                                                                                                                
     # Create relevant directories like "best," "calc_proc#," etc
     make_dirs(sim.pid, algo["dir_struct"], algo["dir_calcs"])
-
+                                                                                    
     # Use structure parameters to create upper and lower bulk slabs
     lower_0, upper_0, dlat = make_crystals(struct, debug)
-
+                                                                                    
     # Compute the weights for replications
     weights = compute_weights(struct)
     if debug: print(f"The weight are: {weights}")
-
+                                                                                    
     # Create a Bicrystal object from the two bulk slabs
     bicrystal = Bicrystal(lower_0, upper_0, struct, algo, dlat,
                           make_copy=False, debug=debug)
-
+                                                                                    
     ##########################################################################
 
     # This loop samples different GB structures
@@ -127,16 +126,25 @@ def main(infile: str, debug: bool) -> None:
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Perform grand canonical optimization of GBs.")
-    parser.add_argument("-i", "--input", type=str, default="params.yaml",
-                        help="File containing structure & algorithm parameters.")
+    
+    parser.add_argument("-i", "--input", type=str, required=True,
+                        help="File containing structure & algorithm parameters (Required).")
+    
     parser.add_argument("-d", "--debug", action="store_true",
                         help="Run in DEBUG mode, which prints variables and terminates early.")
     parser.add_argument("-s", "--seed", type=int, default=1,
                         help="Random seed for debugging.")
+    
     args = parser.parse_args()
     infile = args.input
     debug = args.debug
     seed = args.seed
+
+    # SAFETY CHECK: Throw error if the file path does not exist
+    if not os.path.exists(infile):
+        print(f"\n[ERROR] The parameter file '{infile}' was not found.")
+        print("Please check the path or ensure the directory is bind-mounted in Singularity.\n")
+        sys.exit(1)
 
     if debug:
         rng = np.random.default_rng(seed=seed)
@@ -144,3 +152,4 @@ if __name__ == "__main__":
         rng = np.random.default_rng()
 
     main(infile, debug)
+
