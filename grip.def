@@ -1,0 +1,63 @@
+Bootstrap: docker
+From: python:3.11.5-slim
+
+%labels
+    Author Thanh
+    Description GRIP Environment with LAMMPS 29Aug2024
+
+%setup
+    mkdir -p ${SINGULARITY_ROOTFS}/app
+    cp -rp ./* ${SINGULARITY_ROOTFS}/app/
+    rm -f ${SINGULARITY_ROOTFS}/app/grip.def
+
+%post
+    # 1. Install system dependencies
+    apt-get update && apt-get install -y \
+        build-essential cmake wget git libfftw3-dev libopenmpi-dev python3-dev
+
+    # 2. Download and Install LAMMPS (29Aug2024)
+    mkdir -p /opt/lammps_build && cd /opt/lammps_build
+    wget https://download.lammps.org/tars/lammps-29Aug2024.tar.gz
+    tar -xzvf lammps-29Aug2024.tar.gz
+    cd lammps-29Aug2024 && mkdir build && cd build
+    cmake ../cmake \
+        -D PKG_MOST=yes -D PKG_MEAM=yes -D PKG_MANYBODY=yes \
+        -D BUILD_MPI=no -D BUILD_OMP=no \
+        -D CMAKE_CXX_STANDARD=17 -D CMAKE_INSTALL_PREFIX=/usr/local
+    make -j$(nproc) && make install
+
+    # --- CLEANUP PHASE 1: Remove LAMMPS Source and Build files ---
+    cd /
+    rm -rf /opt/lammps_build
+
+    # 3. Install Python dependencies with Build Isolation Disabled
+    # This prevents pip from downloading a new (incompatible) setuptools
+    pip install --no-cache-dir --upgrade pip 
+    pip install --no-cache-dir "setuptools<60.0.0" "wheel" "Cython<3.0.0"
+    
+    # Install mpi4py without isolation so it uses the setuptools version we just installed
+    pip install --no-cache-dir --no-build-isolation mpi4py==3.1.4
+
+    # Install remaining requirements
+    pip install --no-cache-dir \
+        PyYAML==6.0.1 \
+        numpy==1.24.4 \
+        ase==3.22.1 \
+        pandas==1.5.3 \
+        matplotlib==3.10.1 \
+        scipy
+
+    # --- CLEANUP PHASE 2: Remove package manager cache and pip cache ---
+    apt-get purge -y wget git  # Optional: remove tools only used for the build
+    apt-get autoremove -y
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
+    rm -rf ~/.cache/pip
+
+%environment
+    export LC_ALL=C
+    export PYTHONPATH=/app
+    export PATH=$PATH:/usr/local/bin
+
+%runscript
+    python /app/main.py "$@"
