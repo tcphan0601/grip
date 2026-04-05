@@ -107,6 +107,7 @@ class Simulation():
         self.md_T = None
         self.Tmin = algo["Tmin"]
         self.Tmax = algo["Tmax"]
+        self.Tstep = algo["Tstep"]
 
         # These definitions will have to change with binary systems
         self.symbol = struct["symbol"]
@@ -126,8 +127,8 @@ class Simulation():
         Returns:
             None
         """
-        # Randomly choose a temperature in multiples of 100
-        self.md_T = rng.choice(np.arange(self.Tmin, self.Tmax + 1, 100))
+        # Randomly choose a temperature in multiples of Tstep
+        self.md_T = rng.choice(np.arange(self.Tmin, self.Tmax + 1, self.Tstep))
         if rng.random() > self.md_run:
             self.md_steps = 0
         elif self.md_var == 1 and not self.debug:

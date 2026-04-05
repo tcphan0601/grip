@@ -80,18 +80,6 @@ Adding the `--file` flag with a filename will visualize the structure down the y
 ------
 
 
-## Areas for improvement
-- [x] Add parallelism for other job schedulers besides SLURM.
-- [ ] Create more flexible workflow classes for Monte Carlo moves, energy minimization options, etc.
-- [ ] Extend the code to be compatible with the parallel build of LAMMPS.
-- [ ] Extend the code to work on cores across multiple compute nodes.
-- [ ] Extend the compositional DOF to work with multi-component systems.
-- [ ] Add in Bayesian optimization to narrow down simulation parameters.
-- [ ] Incorporate ways to identify the GB atoms on the fly.
-- [ ] Optimize the saving of files to reduce the memory footprint (sometimes > 1 GB).
-- [ ] Improve the error handling if LAMMPS crashes (and resubmit?)
-
-
 ## Common errors
 
 - `KeyError` - GRIP is expecting a key that does not exist in your `params.yaml` file.
@@ -106,35 +94,6 @@ Adding the `--file` flag with a filename will visualize the structure down the y
   One solution on older ASE version is to add the `specorder` parameter to
   [`write_lammps_data()`](https://wiki.fysik.dtu.dk/ase/ase/io/formatoptions.html#ase.io.lammpsdata.write_lammps_data)
   to enforce the proper atom type assignments.
-
-
-## Contributing
-
-If you encounter any errors or have a suggestion, feel free to raise an Issue or Pull Request.
-We'll try to respond as soon as possible!
-
-
-## Citation
-If you use GRIP in your work, we would appreciate a citation to the [original manuscript](https://www.nature.com/articles/s41467-024-51330-9):
-
-> Enze Chen, Tae Wook Heo, Brandon C. Wood, Mark Asta, and Timofey Frolov.
-"Grand canonically optimized grain boundary phases in hexagonal close-packed titanium."
-_Nature Communications_, **15**, 7049, 2024.
-
-or in BibTeX format:
-
-```
-@article{chen_2024_grip,
-    author = {Chen, Enze and Heo, Tae Wook and Wood, Brandon C. and Asta, Mark and Frolov, Timofey},
-    title = {Grand canonically optimized grain boundary phases in hexagonal close-packed titanium},
-    year = {2024},
-    journal = {Nature Communications},
-    volume = {15},
-    number = {1},
-    pages = {7049},
-    doi = {10.1038/s41467-024-51330-9},
-}
-```
 
 
 ## License

@@ -24,12 +24,13 @@ algo:
 
     MD_run: 0.95            # Probability of running MD simulation before relaxing. [0.0, 1.0] = [Never, Always].
     Tmin: 300               # Temperature lower bound for MD simulation. Min ~0.3 Tm.
-    Tmax: 1200              # Temperature upper bound, vary in multiple of 100s. Max ~0.9 Tm.
+    Tmax: 550               # Temperature upper bound, vary in multiple of Tstep. Max ~0.9 Tm.
+    Tstep: 50
     MD_min:   5000          # Min steps for MD simulation.
-    MD_max: 500000          # Max steps for MD simulation.
+    MD_max:  50000          # Max steps for MD simulation.
     var_steps: 2            # 0 = Min steps only; 1 = linear sample; 2 = exponential sample
 
-    lammps_bin: '/g/g16/chen120/bin/lammps_serial'     # Absolute path to [serial] LAMMPS binary or shell command.
+    lammps_bin: 'lmp'       # Absolute path to [serial] LAMMPS binary or shell command.
     Emult: 2                # Maximum energy threshold * Egb_min to keep; at least 1.0.
     nruns: 0                # Number of iterations in total (each processor). Set 0 for infinite loop.
     clear_freq: 50          # Number of iterations before clearing duplicates. Set 0 to never clear.
@@ -37,31 +38,27 @@ algo:
 
 # Parameters for the material
 struct:
+    # Required Params
     user: False             # True: read existing cells (POSCAR_*), False: generate w/ ase.
-    cutoff: 35              # Max height (A) to cut slabs if user=False; speed up calcs. Set to 0 to ignore.
-    write: True             # Write generated cells to POSCAR_*
+    poscar_path: "/path/to/your/poscars" # Path to find the POSCAR_* files if user = True
+    Ecoh: -4.8312           # Energy per atom in bulk; potential dependent; provide to 4 decimal places.
+    pair_style: 'meam'      # pair_style for LAMMPS
+    pair_coeff: '/home/tphan4/Potentials/library.mg.meam Mg /home/tphan4/Potentials/Mg2014.meam Mg'  # pair_coeff for LAMMPS
     size0: [1, 1, 1]        # Minimum replications in [x, y, z] to create supercells.
-    size: [2, 4, 15]        # Replications in [x, y, z] to create supercells. z is not used if user=True.
+    size: [1, 4, 15]        # Replications in [x, y, z] to create supercells. z is not used if user=True.
     reps: 2                 # Sample replications (1) exactly, (2) uniform, (3) weighted smaller, (4) weighted larger.
 
-    # Basic info - potential dependent!
+    # Only used if user=True, ignore if user=False
+    dlat: 0.703883          # Minimal normal component of lattice vector to calculate Nplane. Required if user=True. Set 0 to ignore.
+
+    # Only used if user=False, ignore if user=True
+    cutoff: 35              # Max height (A) to cut slabs if user=False; speed up calcs. Set to 0 to ignore.
+    write: True             # Write generated cells to POSCAR_*
     upper_dirs: [ [5, 2, -7, 0], [0, 0, 0, -1], [-3, 4, -1, 0] ]    # Ti(31-40) tilt
     lower_dirs: [ [7, -2, -5, 0], [0, 0, 0, -1], [-1, 4, -3, 0] ]
     symbol: 'Ti'            # Chemical formula
     crystal: 'hcp'          # fcc, bcc, hcp, or dc
     mass: 47.867            # Atomic mass
-    # HENNIG
     a: 2.9305               # a lattice constant at 0K; potential dependent; provide to 4 decimal places.
     c: 4.6783               # c lattice constant at 0K; hcp only, ignored for others
-    dlat: 0.703883          # Minimal normal component of lattice vector to calculate Nplane. Required if user=True. Set 0 to ignore.
-    Ecoh: -4.8312           # Energy per atom in bulk; potential dependent; provide to 4 decimal places.
-    pair_style: 'meam/spline'               # pair_style for LAMMPS
-    pair_coeff: '* * /g/g16/chen120/lammps/pots/Ti.meam.spline Ti'     # pair_coeff for LAMMPS
-    # ZOPE
-    #a: 2.9527              # a lattice constant at 0K; potential dependent; provide to 4 decimal places.
-    #c: 4.6808              # c lattice constant; hcp only, ignored for others
-    #dlat: 0.0              # Minimal normal component of lattice vector to calculate Nplane. Required if user=True. Set 0 to ignore.
-    #Ecoh: -4.8500          # Energy per atom in bulk; potential dependent; provide to 4 decimal places.
-    #pair_style: 'eam/alloy'                 # pair_style for LAMMPS
-    #pair_coeff: '* * /g/g16/chen120/lammps/pots/TiAl.eam.alloy Ti'     # pair_coeff for LAMMPS
 

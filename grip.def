@@ -16,6 +16,7 @@ From: python:3.11.5-slim
         build-essential cmake wget git libfftw3-dev libopenmpi-dev python3-dev
 
     # 2. Download and Install LAMMPS (29Aug2024)
+    # Included extra packages: MEAM, MANYBODY. Add other needed package here
     mkdir -p /opt/lammps_build && cd /opt/lammps_build
     wget https://download.lammps.org/tars/lammps-29Aug2024.tar.gz
     tar -xzvf lammps-29Aug2024.tar.gz

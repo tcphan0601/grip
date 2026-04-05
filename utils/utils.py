@@ -62,6 +62,12 @@ def get_inputs(input_data: str = "params.yaml", debug: bool = False) -> Tuple[di
         assert algo["MD_min"] >= 0, "Number of MD steps must be >= 0!"
         assert algo["MD_max"] >= algo["MD_min"], "Max MD steps must be >= min steps!"
 
+        # We check if 'Tstep' is in the YAML. If not, we set a default of 100.
+        if "Tstep" not in algo:
+            algo["Tstep"] = 100
+        assert algo["Tstep"] > 0, "Error: Tstep in params.yaml must be a positive integer."
+        assert isinstance(algo["Tstep"], int), f"Error: Tstep must be an integer (found {type(algo['Tstep']).__name__})."
+
         # Validate inputs for structure parameters
         struct = data["struct"]
         if struct["cutoff"] < 20:
@@ -74,14 +80,14 @@ def get_inputs(input_data: str = "params.yaml", debug: bool = False) -> Tuple[di
 
         for i in range(3):
             assert isinstance(struct["size0"][i], int) and struct["size0"][i] > 0, \
-                   f"Minimum replications in dim {i} must be integer >= 1."
+                    f"Minimum replications in dim {i} must be integer >= 1."
             assert isinstance(struct["size"][i], int) and struct["size"][i] > 0, \
-                   f"Number of replications in dim {i} must be integer >= 1."
+                    f"Number of replications in dim {i} must be integer >= 1."
             assert struct["size0"][i] <= struct["size"][i], \
-                   f"size0 in dim {i} cannot be larger than size!"
+                    f"size0 in dim {i} cannot be larger than size!"
 
         assert struct["reps"] in [1, 2, 3, 4], \
-            f"Repetitions flag {struct['reps']} not yet supported! Choose from [1, 2, 3, 4]."
+                f"Repetitions flag {struct['reps']} not yet supported! Choose from [1, 2, 3, 4]."
 
     return struct, algo
 
@@ -111,9 +117,9 @@ def make_dirs(pid: int, dir_struct: str = "best", dir_calcs: str = "calc_procs")
     os.makedirs(dir_calcs, exist_ok=True)
     time.sleep(1)
 
-    shutil.copytree("simul_files",
-                    os.path.join(dir_calcs, f"{dir_calcs}_{pid+1}"),
-                    dirs_exist_ok=True)
+    shutil.copytree("/app/simul_files",
+            os.path.join(dir_calcs, f"{dir_calcs}_{pid+1}"),
+            dirs_exist_ok=True)
     time.sleep(2)
 
 
@@ -141,7 +147,7 @@ def compute_dhkl(crystal: str, plane: list, a: float, c: float = 0) -> float:
         return a / np.sqrt(plane[0]**2 + plane[1]**2 + plane[2]**2)
     elif crystal.lower() in ["hcp"]:
         return 1 / np.sqrt(4/3 * (plane[0]**2 + plane[0]*plane[1] + plane[1]**2) / a**2 + \
-                           plane[3]**2 / c**2)
+                plane[3]**2 / c**2)
     else:
         raise Exception(f"Crystal structure '{crystal}' is not yet supported.")
 
@@ -171,59 +177,59 @@ def make_crystals(struct: dict, debug: bool = False) -> Tuple[Lattice, Lattice, 
     else:
         if struct["crystal"] == "fcc":
             upper_crystal = FaceCenteredCubic(
-                symbol=struct["symbol"],
-                latticeconstant=struct["a"],
-                directions=struct["upper_dirs"],
-                size=init_size)
+                    symbol=struct["symbol"],
+                    latticeconstant=struct["a"],
+                    directions=struct["upper_dirs"],
+                    size=init_size)
             lower_crystal = FaceCenteredCubic(
-                symbol=struct["symbol"],
-                latticeconstant=struct["a"],
-                directions=struct["lower_dirs"],
-                size=init_size)
+                    symbol=struct["symbol"],
+                    latticeconstant=struct["a"],
+                    directions=struct["lower_dirs"],
+                    size=init_size)
         elif struct["crystal"] == "bcc":
             upper_crystal = BodyCenteredCubic(
-                symbol=struct["symbol"],
-                latticeconstant=struct["a"],
-                directions=struct["upper_dirs"],
-                size=init_size)
+                    symbol=struct["symbol"],
+                    latticeconstant=struct["a"],
+                    directions=struct["upper_dirs"],
+                    size=init_size)
             lower_crystal = BodyCenteredCubic(
-                symbol=struct["symbol"],
-                latticeconstant=struct["a"],
-                directions=struct["lower_dirs"],
-                size=init_size)
+                    symbol=struct["symbol"],
+                    latticeconstant=struct["a"],
+                    directions=struct["lower_dirs"],
+                    size=init_size)
         elif struct["crystal"] == "dc":
             upper_crystal = Diamond(
-                symbol=struct["symbol"],
-                latticeconstant=struct["a"],
-                directions=struct["upper_dirs"],
-                size=init_size)
+                    symbol=struct["symbol"],
+                    latticeconstant=struct["a"],
+                    directions=struct["upper_dirs"],
+                    size=init_size)
             lower_crystal = Diamond(
-                symbol=struct["symbol"],
-                latticeconstant=struct["a"],
-                directions=struct["lower_dirs"],
-                size=init_size)
+                    symbol=struct["symbol"],
+                    latticeconstant=struct["a"],
+                    directions=struct["lower_dirs"],
+                    size=init_size)
         elif struct["crystal"] == "sc":
             upper_crystal = SimpleCubic(
-                symbol=struct["symbol"],
-                latticeconstant=struct["a"],
-                directions=struct["upper_dirs"],
-                size=init_size)
+                    symbol=struct["symbol"],
+                    latticeconstant=struct["a"],
+                    directions=struct["upper_dirs"],
+                    size=init_size)
             lower_crystal = SimpleCubic(
-                symbol=struct["symbol"],
-                latticeconstant=struct["a"],
-                directions=struct["lower_dirs"],
-                size=init_size)
+                    symbol=struct["symbol"],
+                    latticeconstant=struct["a"],
+                    directions=struct["lower_dirs"],
+                    size=init_size)
         elif struct["crystal"] == "hcp":
             upper_crystal = HexagonalClosedPacked(
-                symbol=struct["symbol"],
-                latticeconstant=(struct["a"], struct["c"]),
-                directions=struct["upper_dirs"],
-                size=init_size)
+                    symbol=struct["symbol"],
+                    latticeconstant=(struct["a"], struct["c"]),
+                    directions=struct["upper_dirs"],
+                    size=init_size)
             lower_crystal = HexagonalClosedPacked(
-                symbol=struct["symbol"],
-                latticeconstant=(struct["a"], struct["c"]),
-                directions=struct["lower_dirs"],
-                size=init_size)
+                    symbol=struct["symbol"],
+                    latticeconstant=(struct["a"], struct["c"]),
+                    directions=struct["lower_dirs"],
+                    size=init_size)
         else:
             raise Exception(f"Crystal structure '{struct['crystal']}' is not yet supported.")
 
@@ -249,17 +255,17 @@ def make_crystals(struct: dict, debug: bool = False) -> Tuple[Lattice, Lattice, 
             unique_z = sorted(list(set(lower_crystal.positions[:, 2].round(6))))
         elif struct["crystal"] == "dc":
             parentlat = FaceCenteredCubic(
-                symbol=struct["symbol"],
-                latticeconstant=struct["a"],
-                directions=struct["lower_dirs"],
-                size=init_size)
+                    symbol=struct["symbol"],
+                    latticeconstant=struct["a"],
+                    directions=struct["lower_dirs"],
+                    size=init_size)
             unique_z = sorted(list(set(parentlat.positions[:, 2].round(6))))
         elif struct["crystal"] == "hcp":
             parentlat = Hexagonal(
-                symbol=struct["symbol"],
-                latticeconstant=(struct["a"], struct["c"]),
-                directions=struct["lower_dirs"],
-                size=init_size)
+                    symbol=struct["symbol"],
+                    latticeconstant=(struct["a"], struct["c"]),
+                    directions=struct["lower_dirs"],
+                    size=init_size)
             unique_z = sorted(list(set(parentlat.positions[:, 2].round(6))))
         dlat = abs(unique_z[1] - unique_z[0])
 
@@ -271,10 +277,10 @@ def make_crystals(struct: dict, debug: bool = False) -> Tuple[Lattice, Lattice, 
     # Warn if slabs are too short in z direction (arbitrarily chosen)
     if upper_crystal.cell[2, 2] < 20:
         print(f"WARNING!! Upper slab has height {upper_crystal.cell[2, 2]:.2f}A, " + \
-              "which is small. Results may be inaccurate.")
+                "which is small. Results may be inaccurate.")
     if lower_crystal.cell[2, 2] < 20:
         print(f"WARNING!! Lower slab has height {upper_crystal.cell[2, 2]:.2f}A, " + \
-              "which is small. Results may be inaccurate.")
+                "which is small. Results may be inaccurate.")
 
     return lower_crystal, upper_crystal, dlat
 
@@ -334,7 +340,7 @@ def compute_weights(struct: dict) -> dict:
 
 
 def get_xy_translation(slab: Lattice, rng: np.random.Generator, ngrid: int,
-                       pid: int, debug: bool = False) -> Tuple[float, float]:
+        pid: int, debug: bool = False) -> Tuple[float, float]:
     """
     Calculate translations in x and y.
 
