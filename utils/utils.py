@@ -108,18 +108,15 @@ def make_dirs(pid: int, dir_struct: str = "best", dir_calcs: str = "calc_procs")
     Returns:
         None, but folders are created.
     """
-    # Delete old calculation folders
-    shutil.rmtree(dir_calcs, ignore_errors=True)
-    time.sleep(1)
+    sub_dir = os.path.join(dir_calcs, f"{dir_calcs}_{pid+1}")
 
     # Make new folders for parallel calculations
     os.makedirs(dir_struct, exist_ok=True)
     os.makedirs(dir_calcs, exist_ok=True)
     time.sleep(1)
-
-    shutil.copytree("/app/simul_files",
-            os.path.join(dir_calcs, f"{dir_calcs}_{pid+1}"),
-            dirs_exist_ok=True)
+    if os.path.exists(sub_dir):
+        shutil.rmtree(sub_dir, ignore_errors=True)
+    shutil.copytree("/app/simul_files", sub_dir, dirs_exist_ok=True)
     time.sleep(2)
 
 

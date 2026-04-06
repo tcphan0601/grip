@@ -53,6 +53,12 @@ class Simulation():
         Ecoh (float): Bulk cohesive energy for the specific potential.
 
         mass (float): Mass of the species.
+
+    Added by Thanh:
+
+        log_counter (int): Iteration counter
+
+        summary_file (str): The log file name for this proc
     """
 
     fname_final = "lammps_end_STRUC"   # Final filename when relaxation is done
@@ -89,6 +95,15 @@ class Simulation():
         else:
             self.pid = 0
         self.cfold = os.path.join(algo["dir_calcs"], f"{algo['dir_calcs']}_{self.pid + 1}")
+
+        # Use :03d to ensure rank 1 becomes 001, rank 10 becomes 010, etc.
+        log_name = f"iteration_log_{self.pid + 1:03d}.csv"
+        self.summary_file = os.path.join(self.cfold, log_name)
+        if not os.path.exists(self.summary_file):
+            with open(self.summary_file, "w") as f:
+                f.write("Iteration,dx,dy,swapping,n_swaps,MD_run,MD_steps,Energy\n")
+        self.log_counter = 0  # iteration counter
+
         self.Emult = algo["Emult"]   # for saving later
         self.counter = 0
         self.best_Egb = 1000

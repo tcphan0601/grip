@@ -119,6 +119,27 @@ def main(infile: str, debug: bool) -> None:
         # Store the energy in a list and save the file to the "best" folder
         sim.store_best_structs(bicrystal)
 
+        sim.log_counter += 1
+
+        # Identify if swapping occurred 
+        # In this code, swapped_n is returned by bicrystal.find_and_swap_inters
+        is_swapping = 1 if swapped_n > 0 else 0
+        
+        # Identify if an MD run occurred 
+        # sim.md_steps is set to 0 in sim.sample_params if MD is skipped
+        is_md = 1 if sim.md_steps > 0 else 0
+
+        try:
+            with open(sim.summary_file, "a") as f:
+                # dx, dy are defined at 
+                # sim.md_T, sim.md_steps are defined at [cite: 154, 156]
+                # bicrystal.Egb is defined at [cite: 179]
+                f.write(f"{sim.log_counter},{dx:.6f},{dy:.6f},"
+                        f"{is_swapping},{swapped_n},"
+                        f"{is_md},{sim.md_steps},"
+                        f"{bicrystal.Egb:.8f}\n")
+        except Exception as e:
+            print(f"Rank {sim.pid+1} Log Error: {e}")
         if debug:# and sim.counter == 3:
             assert False, "Terminated early in DEBUG mode."
 

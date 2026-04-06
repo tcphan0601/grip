@@ -39,11 +39,10 @@ algo:
 # Parameters for the material
 struct:
     # Required Params
-    user: False             # True: read existing cells (POSCAR_*), False: generate w/ ase.
-    poscar_path: "/path/to/your/poscars" # Path to find the POSCAR_* files if user = True
+    user: True              # True: read existing cells (POSCAR_*), False: generate w/ ase.
     Ecoh: -4.8312           # Energy per atom in bulk; potential dependent; provide to 4 decimal places.
     pair_style: 'meam'      # pair_style for LAMMPS
-    pair_coeff: '/home/tphan4/Potentials/library.mg.meam Mg /home/tphan4/Potentials/Mg2014.meam Mg'  # pair_coeff for LAMMPS
+    pair_coeff: '* * /home/tcphan/Potentials/library.mg.meam Mg /home/tcphan/Potentials/Mg2014.meam Mg'  # pair_coeff for LAMMPS
     size0: [1, 1, 1]        # Minimum replications in [x, y, z] to create supercells.
     size: [1, 4, 15]        # Replications in [x, y, z] to create supercells. z is not used if user=True.
     reps: 2                 # Sample replications (1) exactly, (2) uniform, (3) weighted smaller, (4) weighted larger.
