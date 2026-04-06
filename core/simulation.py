@@ -99,9 +99,6 @@ class Simulation():
         # Use :03d to ensure rank 1 becomes 001, rank 10 becomes 010, etc.
         log_name = f"iteration_log_{self.pid + 1:03d}.csv"
         self.summary_file = os.path.join(self.cfold, log_name)
-        if not os.path.exists(self.summary_file):
-            with open(self.summary_file, "w") as f:
-                f.write("Iteration,dx,dy,swapping,n_swaps,MD_run,MD_steps,Energy\n")
         self.log_counter = 0  # iteration counter
 
         self.Emult = algo["Emult"]   # for saving later

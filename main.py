@@ -36,6 +36,10 @@ def main(infile: str, debug: bool) -> None:
     # Create relevant directories like "best," "calc_proc#," etc
     make_dirs(sim.pid, algo["dir_struct"], algo["dir_calcs"])
                                                                                     
+    if not os.path.exists(sim.summary_file):
+        with open(sim.summary_file, "w") as f:
+            f.write("Iteration,dx,dy,swapping,n_swaps,MD_run,MD_steps,Energy\n")
+
     # Use structure parameters to create upper and lower bulk slabs
     lower_0, upper_0, dlat = make_crystals(struct, debug)
                                                                                     
