@@ -1,0 +1,21 @@
+#!/bin/bash
+#SBATCH --job-name="Tilt-GB-15.18-n5-m20"
+#SBATCH --output="output.%j.%N"
+#SBATCH --error="error.%j.%N"
+#SBATCH --partition=compute
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=128
+#SBATCH --account=ios134
+#SBATCH --export=ALL
+#SBATCH -t 24:00:00
+
+module purge
+module load slurm singularitypro 
+
+SINGULARITY_BIND_OPTS="--bind /expanse,/scratch,/home/tcphan/:/home/tcphan/"
+
+CONTAINER_IMAGE=/home/tcphan/grip.sif
+PARAMS=params.yaml
+
+srun singularity run ${SINGULARITY_BIND_OPTS} \
+            $CONTAINER_IMAGE -i $PARAMS
